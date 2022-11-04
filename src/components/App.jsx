@@ -1,33 +1,46 @@
-export const App = () => {
-  return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
-  );
+import React from 'react';
+import { Component } from 'react';
+import { SearchBar } from 'components/SearchBar/SearchBar';
+
+// import { PixabayAPI } from '../services/PixabayAPI';
+
+
+export class App extends Component {
+  state = {
+    searchQuery: '',
+  }
+
+
+  componentDidMount() {
+    // console.log(PixabayAPI);
+    // PixabayAPI
+    // .then(data => console.log(data))
+  }
+
+  componentDidUpdate() {}
+
+
+  onSubmit = (searchField) => {
+    // this.setState({ searchQuery: searchField });
+
+    this.setState(({ searchQuery }) => ({ searchQuery: searchField}));
+  }
+
+  render() {
+    return (
+      <div
+        style={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontSize: 40,
+          color: '#010101'
+        }}
+      >
+        <SearchBar onSubmit={this.onSubmit} />
+      </div>
+    );
+  }
 };
 
-
-/**Інструкція Pixabay API
-Зареєструйся та отримай приватний ключ доступу. Для HTTP-запитів використовуй публічний сервіс пошуку зображень Pixabay.
-
-URL-рядок HTTP-запиту.
-
-https://pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
-
-Pixabay API підтримує пагінацію, за замовчуванням параметр page дорівнює 1. Нехай у відповіді надходить по 12 об'єктів, 
-встановлено в параметрі per_page. Не забудь, що під час пошуку за новим ключовим словом, необхідно скидати значення page до 1.
-
-У відповіді від апі приходить масив об'єктів, в яких тобі цікаві лише наступні властивості.
-
-id - унікальний ідентифікатор
-webformatURL - посилання на маленьке зображення для списку карток
-largeImageURL - посилання на велике зображення для модального вікна */
