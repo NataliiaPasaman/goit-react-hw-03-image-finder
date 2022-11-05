@@ -1,47 +1,64 @@
 import React from 'react';
 import { Component } from 'react';
 import { SearchBar } from './SearchBar/SearchBar';
-import { ImageGallery } from './ImageGallery/ImageGallery';
 import { pixabayAPI } from '../services/PixabayAPI';
-
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { Loader } from './Loader/Loader';
+import { LoadButton } from './Button/Button';
 
 export class App extends Component {
   state = {
-    searchQuery: 'cat',
+    searchQuery: '',
     images: [],
     isLoader: false,
     error: null,
     status: 'idle',
+  };
+
+  async componentDidUpdate(prevProps, prevState) {
+    console.log('hello from componentDidUpdate');
+    console.log('prevState.searchQuery ', prevState.searchQuery);
+    console.log('this.state.searchQuery', this.state.searchQuery);
+
+    if (prevState.searchQuery !== this.state.searchQuery) {
+      this.setState({ isLoader: true });
+      try {
+        const imagesResult = await pixabayAPI(this.state.searchQuery);
+
+        this.setState({ images: imagesResult.hits });
+        this.setState({ isLoader: false });
+      } catch (error) {
+        this.setState({
+          error: 'Unfortunately, nothing was found for your request',
+        });
+      }
+    }
   }
 
-  async componentDidMount() {
+  total = async () => {
     try {
       const imagesResult = await pixabayAPI(this.state.searchQuery);
-      this.setState({ images: imagesResult });
+      const totalImages = imagesResult.totalHits;
+      if (totalImages > 12) {
+        return <LoadButton />;
+      }
     } catch (error) {
-      this.setState({ error });
-    } finally {
-      // this.setState({ isLoading: false });
-  }
-}
+      console.log(error);
+    }
+  };
 
-  // async componentDidUpdate (prevState) {
-  //   this.setState({ isLoader: true });
-    
-  //   if(prevState.searchQuery !== this.state.searchQuery) {
-  //     // const imagesResult = await pixabayAPI(this.state.searchQuery);
-  //     // this.setState({ images: imagesResult });
-  //     return;
-  //   }
-  // }
+  onClickLoad = async () => {
+    const imagesResult = await pixabayAPI(this.state.searchQuery);
+    let page = 1;
+  };
 
-
-  onSubmit = (searchField) => {
-    if(!searchField) {
+  onSubmit = searchField => {
+    if (!searchField) {
+      alert('Enter data in the search field');
       return;
     }
-    this.setState(({ searchQuery }) => ({ searchQuery: searchField}));
-  }
+    this.setState(({ searchQuery }) => ({ searchQuery: searchField }));
+  };
 
   render() {
     return (
@@ -49,13 +66,15 @@ export class App extends Component {
         style={{
           height: '100vh',
           fontSize: 40,
-          color: '#010101'
+          color: '#010101',
         }}
       >
         <SearchBar onSubmit={this.onSubmit} />
-        {this.state.isLoader && <p>Loading...</p>}
+        {this.state.error && <div>{this.state.error}</div>}
+        {this.state.isLoader && <Loader />}
         {this.state.searchQuery && <ImageGallery images={this.state.images} />}
+        {/* {this.total() && <LoadButton onClickLoad={this.onClickLoad}/>} */}
       </div>
     );
   }
-};
+}
