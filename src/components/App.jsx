@@ -2,82 +2,44 @@ import React from 'react';
 import { Component } from 'react';
 import { SearchBar } from './SearchBar/SearchBar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-
-// import { PixabayAPI } from '../services/PixabayAPI';
-
-const BASE_URL = 'https://pixabay.com/api/';
-const KEY = '30059530-99c96b166b7120acaaa07225e';
-const searchParams = new URLSearchParams({
-    key: KEY,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    per_page: 12,
-    page: 1,
-});
-
-// export const PixabayAPI = () => {
-    
-
-//   return fetch(`${BASE_URL}?${searchParams}&q=cat`)
-//   .then(response => {
-//       console.log(response);
-
-//       return response.json();
-//   })
-//   .catch(error => console.log(error));
-// }
-
+import { pixabayAPI } from '../services/PixabayAPI';
 
 
 export class App extends Component {
   state = {
-    searchQuery: '',
+    searchQuery: 'cat',
     images: [],
+    isLoader: false,
+    error: null,
+    status: 'idle',
   }
 
-
-  componentDidMount() {
-    // this.api();
-    // console.log(PixabayAPI);
-    // PixabayAPI
-    // .then(data => console.log(data))
+  async componentDidMount() {
+    try {
+      const imagesResult = await pixabayAPI(this.state.searchQuery);
+      this.setState({ images: imagesResult });
+    } catch (error) {
+      this.setState({ error });
+    } finally {
+      // this.setState({ isLoading: false });
   }
+}
 
-  componentDidUpdate(prevState) {
-    if(prevState !== this.state.searchQuery) {
-      // this.api();
-      return;
-    }
-
-    // this.api();
-
-    // console.log(PixabayAPI);
-    // PixabayAPI
-    // .then(data => console.log(data))
-  }
-
-
-  api = () => {
+  // async componentDidUpdate (prevState) {
+  //   this.setState({ isLoader: true });
     
-    return fetch(`${BASE_URL}?${searchParams}&q=${this.state.searchQuery}`)
-    .then(response => {
-        console.log('response', response);
-  
-        return response.json();
-    })
-    .then(data => {
-      console.log('data', data.hits);
-      const imgArray = data.hits;
-      this.setState(({ images: imgArray }))
-    return data.hits})
-    .catch(error => console.log(error));
-  }
-
+  //   if(prevState.searchQuery !== this.state.searchQuery) {
+  //     // const imagesResult = await pixabayAPI(this.state.searchQuery);
+  //     // this.setState({ images: imagesResult });
+  //     return;
+  //   }
+  // }
 
 
   onSubmit = (searchField) => {
-    // this.setState({ searchQuery: searchField });
+    if(!searchField) {
+      return;
+    }
     this.setState(({ searchQuery }) => ({ searchQuery: searchField}));
   }
 
@@ -86,17 +48,14 @@ export class App extends Component {
       <div
         style={{
           height: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
           fontSize: 40,
           color: '#010101'
         }}
       >
         <SearchBar onSubmit={this.onSubmit} />
-        <ImageGallery images={this.state.images} />
+        {this.state.isLoader && <p>Loading...</p>}
+        {this.state.searchQuery && <ImageGallery images={this.state.images} />}
       </div>
     );
   }
 };
-
