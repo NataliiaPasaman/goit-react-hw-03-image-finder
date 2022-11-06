@@ -12,51 +12,48 @@ export class App extends Component {
     images: [],
     isLoader: false,
     error: null,
+    page: 1,
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      const { searchQuery } = this.state; 
-
-      this.setState({ isLoader: true, images: [], error: null });
+    const { searchQuery, page } = this.state; 
+    if (prevState.searchQuery !== searchQuery) {
+      this.setState({ 
+        isLoader: true, 
+        images: [], 
+        error: null, 
+        page: 1,
+       });
 
       try {
-        const imagesResult = await pixabayAPI(searchQuery);
-
+        const imagesResult = await pixabayAPI(searchQuery, page);
         this.setState({ images: imagesResult.hits });
-        this.setState({ isLoader: false });
 
         if (imagesResult.hits.length === 0) {
           this.setState({ error: `Unfortunately, nothing was found for your request ${searchQuery}` });
           return;
         }
-
       } catch (error) {
         console.log(error.message);
+      } finally {
+        this.setState({ isLoader: false });
+      }
+    }
+
+    if (prevState.page !== this.state.page) {
+      this.setState({ isLoader: true, error: null });
+
+      try {
+        const imagesResult = await pixabayAPI(searchQuery, page);
+        this.setState({ page });
+        this.setState(prevState => ({ images: [...prevState.images, ...imagesResult.hits] }));
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        this.setState({ isLoader: false });
       }
     }
   }
-
-  total = async () => {
-    try {
-      const imagesResult = await pixabayAPI(this.state.searchQuery);
-      console.log('total: imagesResult', imagesResult);
-
-      const totalImages = imagesResult.totalHits;
-      console.log('total: totalImages', totalImages);
-
-      if (totalImages > 12) {
-        return <LoadButton />;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  onClickLoad = async () => {
-    const imagesResult = await pixabayAPI(this.state.searchQuery);
-    let page = 1;
-  };
 
   onSubmit = searchField => {
     if (!searchField) {
@@ -66,9 +63,12 @@ export class App extends Component {
     this.setState(({ searchQuery }) => ({ searchQuery: searchField }));
   };
 
+  onClickLoad = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }))
+  };
+
   render() {
     const { searchQuery, isLoader, error, images } = this.state;
-    const total = this.total();
 
     return (
       <div
@@ -82,7 +82,9 @@ export class App extends Component {
         {error && <div>{error}</div>}
         {isLoader && <Loader />}
         {searchQuery && <ImageGallery images={images} />}
-        {total && <LoadButton onClickLoad={this.onClickLoad}/>}
+        {!isLoader 
+        && images.length !== 0
+        && <LoadButton onClickLoad={this.onClickLoad}/>}
       </div>
     );
   }
