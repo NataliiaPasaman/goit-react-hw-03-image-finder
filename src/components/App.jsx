@@ -12,25 +12,27 @@ export class App extends Component {
     images: [],
     isLoader: false,
     error: null,
-    status: 'idle',
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    console.log('hello from componentDidUpdate');
-    console.log('prevState.searchQuery ', prevState.searchQuery);
-    console.log('this.state.searchQuery', this.state.searchQuery);
-
     if (prevState.searchQuery !== this.state.searchQuery) {
-      this.setState({ isLoader: true });
+      const { searchQuery } = this.state; 
+
+      this.setState({ isLoader: true, images: [], error: null });
+
       try {
-        const imagesResult = await pixabayAPI(this.state.searchQuery);
+        const imagesResult = await pixabayAPI(searchQuery);
 
         this.setState({ images: imagesResult.hits });
         this.setState({ isLoader: false });
+
+        if (imagesResult.hits.length === 0) {
+          this.setState({ error: `Unfortunately, nothing was found for your request ${searchQuery}` });
+          return;
+        }
+
       } catch (error) {
-        this.setState({
-          error: 'Unfortunately, nothing was found for your request',
-        });
+        console.log(error.message);
       }
     }
   }
@@ -38,7 +40,11 @@ export class App extends Component {
   total = async () => {
     try {
       const imagesResult = await pixabayAPI(this.state.searchQuery);
+      console.log('total: imagesResult', imagesResult);
+
       const totalImages = imagesResult.totalHits;
+      console.log('total: totalImages', totalImages);
+
       if (totalImages > 12) {
         return <LoadButton />;
       }
@@ -61,6 +67,9 @@ export class App extends Component {
   };
 
   render() {
+    const { searchQuery, isLoader, error, images } = this.state;
+    const total = this.total();
+
     return (
       <div
         style={{
@@ -70,10 +79,10 @@ export class App extends Component {
         }}
       >
         <SearchBar onSubmit={this.onSubmit} />
-        {this.state.error && <div>{this.state.error}</div>}
-        {this.state.isLoader && <Loader />}
-        {this.state.searchQuery && <ImageGallery images={this.state.images} />}
-        {/* {this.total() && <LoadButton onClickLoad={this.onClickLoad}/>} */}
+        {error && <div>{error}</div>}
+        {isLoader && <Loader />}
+        {searchQuery && <ImageGallery images={images} />}
+        {total && <LoadButton onClickLoad={this.onClickLoad}/>}
       </div>
     );
   }

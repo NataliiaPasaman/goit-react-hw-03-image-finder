@@ -19,6 +19,7 @@ export const pixabayAPI = async searchQuery => {
             q: searchQuery,
         }
       });
+
       const images = await response.data;
       return images;
     } catch (error) {
