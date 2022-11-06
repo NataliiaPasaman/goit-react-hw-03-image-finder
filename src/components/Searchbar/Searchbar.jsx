@@ -2,6 +2,7 @@ import React from 'react';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import css from "components/SearchBar/SearchBar.module.css";
+import { GoSearch } from 'react-icons/go';
 
 export class SearchBar extends Component {
   state = {
@@ -29,18 +30,18 @@ export class SearchBar extends Component {
     const { searchField } = this.state;
 
     return (
-      <header className={css.SearchBar}>
-        <form className={css.SearchForm} onSubmit={this.onSubmit}>
+      <header className={css.searchbar} >
+        <form className={css.searchForm} onSubmit={this.onSubmit}>
           <button
-            // className={css.SearchFormButton}
+            className={css.searchFormButton}
             type="submit"
           >
-            <span>Search</span>
+            <GoSearch  size={20} />
           </button>
 
           <input
             onChange={this.onSearchChange}
-            className={css.SearchFormInput}
+            className={css.searchFormInput}
             type="text"
             name={searchField}
             value={searchField}
