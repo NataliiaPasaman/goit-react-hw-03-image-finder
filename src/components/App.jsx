@@ -16,21 +16,23 @@ export class App extends Component {
   };
 
   async componentDidUpdate(prevProps, prevState) {
-    const { searchQuery, page } = this.state; 
+    const { searchQuery, page } = this.state;
     if (prevState.searchQuery !== searchQuery) {
-      this.setState({ 
-        isLoader: true, 
-        images: [], 
-        error: null, 
+      this.setState({
+        isLoader: true,
+        images: [],
+        error: null,
         page: 1,
-       });
+      });
 
       try {
         const imagesResult = await pixabayAPI(searchQuery, page);
         this.setState({ images: imagesResult.hits });
 
         if (imagesResult.hits.length === 0) {
-          this.setState({ error: `Unfortunately, nothing was found for your request ${searchQuery}` });
+          this.setState({
+            error: `Unfortunately, nothing was found for your request ${searchQuery}`,
+          });
           return;
         }
       } catch (error) {
@@ -46,7 +48,9 @@ export class App extends Component {
       try {
         const imagesResult = await pixabayAPI(searchQuery, page);
         this.setState({ page });
-        this.setState(prevState => ({ images: [...prevState.images, ...imagesResult.hits] }));
+        this.setState(prevState => ({
+          images: [...prevState.images, ...imagesResult.hits],
+        }));
       } catch (error) {
         console.log(error.message);
       } finally {
@@ -64,7 +68,7 @@ export class App extends Component {
   };
 
   onClickLoad = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }))
+    this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
   render() {
@@ -83,8 +87,8 @@ export class App extends Component {
         {isLoader && <Loader />}
         {searchQuery && <ImageGallery images={images} />}
         {!isLoader 
-        && images.length !== 0
-        && <LoadButton onClickLoad={this.onClickLoad}/>}
+        && images.length !== 0 
+        && <LoadButton onClickLoad={this.onClickLoad} />}
       </div>
     );
   }
