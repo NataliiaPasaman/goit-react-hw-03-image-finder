@@ -17,6 +17,7 @@ export class App extends Component {
 
   async componentDidUpdate(prevProps, prevState) {
     const { searchQuery, page } = this.state;
+
     if (prevState.searchQuery !== searchQuery) {
       this.setState({
         isLoader: true,
@@ -42,7 +43,7 @@ export class App extends Component {
       }
     }
 
-    if (prevState.page !== this.state.page) {
+    if (prevState.page !== this.state.page && prevState.searchQuery === searchQuery) {
       this.setState({ isLoader: true, error: null });
 
       try {
@@ -84,8 +85,8 @@ export class App extends Component {
       >
         <SearchBar onSubmit={this.onSubmit} />
         {error && <div>{error}</div>}
-        {isLoader && <Loader />}
         {searchQuery && <ImageGallery images={images} />}
+        {isLoader && <Loader />}
         {!isLoader 
         && images.length !== 0 
         && <LoadButton onClickLoad={this.onClickLoad} />}
