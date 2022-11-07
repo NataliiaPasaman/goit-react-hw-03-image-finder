@@ -5,6 +5,7 @@ import { pixabayAPI } from '../services/PixabayAPI';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { LoadButton } from './Button/Button';
+import { Modal } from 'components/Modal/Modal';
 
 export class App extends Component {
   state = {
@@ -13,7 +14,13 @@ export class App extends Component {
     isLoader: false,
     error: null,
     page: 1,
+    showModal: false,
+    largeImage: '',
   };
+
+  componentDidMount() {
+    window.addEventListener("keydown", this.onEscapeClose);
+  }
 
   async componentDidUpdate(prevProps, prevState) {
     const { searchQuery, page } = this.state;
@@ -60,6 +67,10 @@ export class App extends Component {
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener("keydown", this.onEscapeClose);
+  }
+
   onSubmit = searchField => {
     if (!searchField) {
       alert('Enter data in the search field');
@@ -72,8 +83,24 @@ export class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
+  toogleModal = largeImageURL => {
+    this.setState(({ showModal, largeImage }) => ({
+      showModal: !showModal,
+      largeImage: largeImageURL,
+    }));
+  };
+
+  onEscapeClose = event => {
+    console.log('Code', event.code);
+
+    if (event.code === 'Escape') {
+      this.toogleModal();
+    }
+  };
+
   render() {
-    const { searchQuery, isLoader, error, images } = this.state;
+    const { searchQuery, isLoader, error, images, showModal, largeImage } =
+      this.state;
 
     return (
       <div
@@ -84,12 +111,18 @@ export class App extends Component {
         }}
       >
         <SearchBar onSubmit={this.onSubmit} />
+
         {error && <div>{error}</div>}
-        {searchQuery && <ImageGallery images={images} />}
+
+        {searchQuery && (
+          <ImageGallery images={images} toogleModal={this.toogleModal} />
+        )}
         {isLoader && <Loader />}
-        {!isLoader 
-        && images.length !== 0 
-        && <LoadButton onClickLoad={this.onClickLoad} />}
+
+        {!isLoader && images.length !== 0 && (
+          <LoadButton onClickLoad={this.onClickLoad} />
+        )}
+        {showModal && <Modal tag={searchQuery} largeImageURL={largeImage} />}
       </div>
     );
   }

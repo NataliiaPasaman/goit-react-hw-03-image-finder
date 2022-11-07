@@ -1,14 +1,21 @@
+import PropTypes from 'prop-types';
+import css from "components/Modal/Modal.module.css";
 
-
-/** Під час кліку на елемент галереї повинно відкриватися модальне вікно з темним оверлеєм 
- * і відображатися велика версія зображення. Модальне вікно повинно закриватися по 
+/**Модальне вікно повинно закриватися по 
  * натисканню клавіші ESC або по кліку на оверлеї.
+*/
 
-Зовнішній вигляд схожий на функціонал цього VanillaJS-плагіна, тільки замість білого модального 
-вікна рендериться зображення (у прикладі натисніть Run). Анімацію робити не потрібно! 
+export const Modal = ({ largeImageURL, tag }) => {
+  return (
+    <div className={css.overlay}>
+      <div className={css.modal}>
+        <img src={largeImageURL} alt={tag} />
+      </div>
+    </div>
+  );
+};
 
-<div class="overlay">
-  <div class="modal">
-    <img src="" alt="" />
-  </div>
-</div>*/
+Modal.propTypes = {
+  largeImageURL: PropTypes.string.isRequired,
+  tag: PropTypes.string.isRequired,
+};
