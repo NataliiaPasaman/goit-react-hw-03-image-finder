@@ -18,10 +18,6 @@ export class App extends Component {
     largeImage: '',
   };
 
-  componentDidMount() {
-    window.addEventListener("keydown", this.onEscapeClose);
-  }
-
   async componentDidUpdate(prevProps, prevState) {
     const { searchQuery, page } = this.state;
 
@@ -67,10 +63,6 @@ export class App extends Component {
     }
   }
 
-  componentWillUnmount() {
-    window.removeEventListener("keydown", this.onEscapeClose);
-  }
-
   onSubmit = searchField => {
     if (!searchField) {
       alert('Enter data in the search field');
@@ -88,14 +80,6 @@ export class App extends Component {
       showModal: !showModal,
       largeImage: largeImageURL,
     }));
-  };
-
-  onEscapeClose = event => {
-    console.log('Code', event.code);
-
-    if (event.code === 'Escape') {
-      this.toogleModal();
-    }
   };
 
   render() {
@@ -122,7 +106,11 @@ export class App extends Component {
         {!isLoader && images.length !== 0 && (
           <LoadButton onClickLoad={this.onClickLoad} />
         )}
-        {showModal && <Modal tag={searchQuery} largeImageURL={largeImage} />}
+        {showModal && <Modal 
+          tag={searchQuery} 
+          largeImageURL={largeImage}
+          toogleModal={this.toogleModal} 
+          />}
       </div>
     );
   }
