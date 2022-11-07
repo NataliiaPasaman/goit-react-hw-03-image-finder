@@ -109,7 +109,7 @@ export class App extends Component {
         {showModal && <Modal 
           tag={searchQuery} 
           largeImageURL={largeImage}
-          toogleModal={this.toogleModal} 
+          onCloseModal={this.toogleModal} 
           />}
       </div>
     );

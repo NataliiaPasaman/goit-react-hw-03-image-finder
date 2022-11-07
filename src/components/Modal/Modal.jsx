@@ -3,10 +3,6 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import css from "components/Modal/Modal.module.css";
 
-/**Модальне вікно повинно закриватися по 
- * натисканню клавіші ESC або по кліку на оверлеї.
-*/
-
 export class Modal extends Component {
 
   componentDidMount() {
@@ -17,19 +13,25 @@ export class Modal extends Component {
     window.removeEventListener("keydown", this.onEscapeClose);
   }
 
-  onEscapeClose = event => {
-    console.log('Code', event.code);
+  onEscapeClose = evt => {
+    console.log('Code', evt.code);
 
-    if (event.code === 'Escape') {
-      this.props.toogleModal();
+    if (evt.code === 'Escape') {
+      this.props.onCloseModal();
     }
   };
+
+  onBackdropClose = (evt) => {
+    if(evt.target === evt.currentTarget) {
+      this.props.onCloseModal();
+    }
+  }
 
   render() {
     const { largeImageURL, tag } = this.props;
 
     return (
-      <div className={css.overlay}>
+      <div className={css.overlay} onClick={this.onBackdropClose}>
         <div className={css.modal}>
           <img src={largeImageURL} alt={tag} />
         </div>
@@ -41,4 +43,5 @@ export class Modal extends Component {
 Modal.propTypes = {
   largeImageURL: PropTypes.string.isRequired,
   tag: PropTypes.string.isRequired,
+  onCloseModal: PropTypes.func.isRequired,
 };
