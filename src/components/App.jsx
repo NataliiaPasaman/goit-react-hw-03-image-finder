@@ -6,6 +6,8 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { LoadButton } from './Button/Button';
 import { Modal } from 'components/Modal/Modal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class App extends Component {
   state = {
@@ -34,8 +36,22 @@ export class App extends Component {
         this.setState({ images: imagesResult.hits });
 
         if (imagesResult.hits.length === 0) {
+          const notify = () =>
+            toast.error(
+              `Sorry, we didn't find anything for your request ${searchQuery}`,
+              {
+                position: 'top-center',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'colored',
+              }
+            );
           this.setState({
-            error: `Unfortunately, nothing was found for your request ${searchQuery}`,
+            error: notify(),
           });
           return;
         }
@@ -96,7 +112,7 @@ export class App extends Component {
       >
         <SearchBar onSubmit={this.onSubmit} />
 
-        {error && <div>{error}</div>}
+        {error && <ToastContainer />}
 
         {searchQuery && (
           <ImageGallery images={images} toogleModal={this.toogleModal} />
@@ -106,11 +122,13 @@ export class App extends Component {
         {!isLoader && images.length !== 0 && (
           <LoadButton onClickLoad={this.onClickLoad} />
         )}
-        {showModal && <Modal 
-          tag={searchQuery} 
-          largeImageURL={largeImage}
-          onCloseModal={this.toogleModal} 
-          />}
+        {showModal && (
+          <Modal
+            tag={searchQuery}
+            largeImageURL={largeImage}
+            onCloseModal={this.toogleModal}
+          />
+        )}
       </div>
     );
   }
