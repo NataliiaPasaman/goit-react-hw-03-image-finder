@@ -17,6 +17,7 @@ export class App extends Component {
     error: null,
     page: 1,
     showModal: false,
+    showButton: true,
     largeImage: '',
   };
 
@@ -29,12 +30,17 @@ export class App extends Component {
         images: [],
         error: null,
         page: 1,
+        showButton: true,
       });
 
       try {
         const imagesResult = await pixabayAPI(searchQuery, page);
+        const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
         this.setState({ images: imagesResult.hits });
 
+        if(page === pagesImagesResult) {
+          this.setState({ showButton: false });
+        }
         if (imagesResult.hits.length === 0) {
           const notify = () =>
             toast.error(
@@ -63,14 +69,20 @@ export class App extends Component {
     }
 
     if (prevState.page !== this.state.page && prevState.searchQuery === searchQuery) {
-      this.setState({ isLoader: true, error: null });
+      this.setState({ isLoader: true, error: null, showButton: true });
 
       try {
         const imagesResult = await pixabayAPI(searchQuery, page);
+        const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
+
         this.setState({ page });
         this.setState(prevState => ({
           images: [...prevState.images, ...imagesResult.hits],
         }));
+
+        if(page === pagesImagesResult) {
+          this.setState({ showButton: false });
+        }
       } catch (error) {
         console.log(error.message);
       } finally {
@@ -99,7 +111,7 @@ export class App extends Component {
   };
 
   render() {
-    const { searchQuery, isLoader, error, images, showModal, largeImage } =
+    const { searchQuery, isLoader, error, images, showModal, showButton, largeImage } =
       this.state;
 
     return (
@@ -119,7 +131,7 @@ export class App extends Component {
         )}
         {isLoader && <Loader />}
 
-        {!isLoader && images.length !== 0 && (
+        {!isLoader && showButton && images.length !== 0 && (
           <LoadButton onClickLoad={this.onClickLoad} />
         )}
         {showModal && (
