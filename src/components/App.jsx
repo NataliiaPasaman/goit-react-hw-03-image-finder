@@ -34,32 +34,34 @@ export class App extends Component {
       });
 
       try {
-        const imagesResult = await pixabayAPI(searchQuery, page);
-        const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
-        this.setState({ images: imagesResult.hits });
+        if (page === 1) {
+          const imagesResult = await pixabayAPI(searchQuery, page);
+          const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
+          this.setState({ images: imagesResult.hits });
 
-        if(page === pagesImagesResult) {
-          this.setState({ showButton: false });
-        }
-        if (imagesResult.hits.length === 0) {
-          const notify = () =>
-            toast.error(
-              `Sorry, we didn't find anything for your request ${searchQuery}`,
-              {
-                position: 'top-center',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: 'colored',
-              }
-            );
-          this.setState({
-            error: notify(),
-          });
-          return;
+          if (page === pagesImagesResult) {
+            this.setState({ showButton: false });
+          }
+          if (imagesResult.hits.length === 0) {
+            const notify = () =>
+              toast.error(
+                `Sorry, we didn't find anything for your request ${searchQuery}`,
+                {
+                  position: 'top-center',
+                  autoClose: 3000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'colored',
+                }
+              );
+            this.setState({
+              error: notify(),
+            });
+            return;
+          }
         }
       } catch (error) {
         console.log(error.message);
