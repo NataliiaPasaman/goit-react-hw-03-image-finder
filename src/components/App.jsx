@@ -36,15 +36,13 @@ export class App extends Component {
       try {
         if (page === 1) {
           const imagesResult = await pixabayAPI(searchQuery, page);
-          const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
-          this.setState({ images: imagesResult.hits });
+          this.setState({
+            images: imagesResult.hits,
+            showButton: page < Math.ceil(imagesResult.totalHits / 12),
+          });
 
-          if (page === pagesImagesResult) {
-            this.setState({ showButton: false });
-          }
           if (imagesResult.hits.length === 0) {
-            const notify = () =>
-              toast.error(
+            const notify = () => toast.error(
                 `Sorry, we didn't find anything for your request ${searchQuery}`,
                 {
                   position: 'top-center',
@@ -55,8 +53,7 @@ export class App extends Component {
                   draggable: true,
                   progress: undefined,
                   theme: 'colored',
-                }
-              );
+                });
             this.setState({
               error: notify(),
             });
@@ -72,19 +69,13 @@ export class App extends Component {
 
     if (prevState.page !== this.state.page && prevState.searchQuery === searchQuery) {
       this.setState({ isLoader: true, error: null, showButton: true });
-
       try {
         const imagesResult = await pixabayAPI(searchQuery, page);
-        const pagesImagesResult = Math.ceil(imagesResult.totalHits / 12);
 
-        this.setState({ page });
         this.setState(prevState => ({
           images: [...prevState.images, ...imagesResult.hits],
+          showButton: page < Math.ceil(imagesResult.totalHits / 12),
         }));
-
-        if(page === pagesImagesResult) {
-          this.setState({ showButton: false });
-        }
       } catch (error) {
         console.log(error.message);
       } finally {
@@ -113,8 +104,15 @@ export class App extends Component {
   };
 
   render() {
-    const { searchQuery, isLoader, error, images, showModal, showButton, largeImage } =
-      this.state;
+    const {
+      searchQuery,
+      isLoader,
+      error,
+      images,
+      showModal,
+      showButton,
+      largeImage,
+    } = this.state;
 
     return (
       <div
